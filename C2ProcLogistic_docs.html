@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C2ProcLogistic — Documentation</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #ffffff;
+  --text: #1c1c1c;
+  --muted: #5a6270;
+  --border: #dde2e8;
+  --accent: #0059b3;
+  --accent-lt: #e6f0ff;
+  --code-bg: #f3f4f6;
+  --sidebar-bg: #f7f8fa;
+  --topbar-bg: #1a2b42;
+  --topbar-h: 54px;
+  --sidebar-w: 265px;
+  --mono: 'IBM Plex Mono', 'Courier New', monospace;
+  --sans: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); font-size: 14.5px; line-height: 1.75; }
+
+/* ── Topbar ── */
+#topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: var(--topbar-h);
+  background: var(--topbar-bg);
+  display: flex; align-items: center; gap: 16px;
+  padding: 0 28px;
+  border-bottom: 2px solid #2a6db5;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+#topbar .brand { font-family: var(--mono); font-size: 15.5px; font-weight: 600; color: #fff; letter-spacing: 0.03em; }
+#topbar .brand em { color: #5ab4ff; font-style: normal; }
+#topbar .badge { font-family: var(--mono); font-size: 10.5px; background: #0059b3; color: #fff; padding: 2px 9px; border-radius: 3px; letter-spacing: 0.04em; }
+#topbar .desc { font-size: 12px; color: #8cacc8; margin-left: 6px; }
+
+/* ── Layout ── */
+#layout { display: flex; margin-top: var(--topbar-h); }
+
+/* ── Sidebar ── */
+#sidebar {
+  width: var(--sidebar-w); min-width: var(--sidebar-w);
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  position: sticky; top: var(--topbar-h);
+  height: calc(100vh - var(--topbar-h));
+  overflow-y: auto; padding: 18px 0 60px;
+  font-size: 13px;
+}
+#sidebar::-webkit-scrollbar { width: 4px; }
+#sidebar::-webkit-scrollbar-thumb { background: #c8cdd6; border-radius: 4px; }
+
+.nav-section { margin-bottom: 2px; }
+
+.nav-section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 16px 8px 20px;
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #8898aa;
+  cursor: pointer; user-select: none;
+  border-left: 3px solid transparent;
+  transition: background 0.15s, color 0.15s;
+}
+.nav-section-header:hover { background: #edf0f5; color: #445; }
+.nav-section-header.open { color: var(--accent); border-left-color: var(--accent); background: #edf2fb; }
+.nav-arrow { font-size: 9px; transition: transform 0.2s; color: #aab; }
+.nav-section-header.open .nav-arrow { transform: rotate(90deg); }
+
+.nav-links { display: none; background: #fff; border-left: 3px solid #c5d8f0; margin-left: 20px; }
+.nav-links.open { display: block; }
+.nav-links a {
+  display: block; padding: 5px 14px 5px 16px;
+  color: #3d5572; text-decoration: none;
+  transition: background 0.12s, color 0.12s;
+  line-height: 1.4;
+}
+.nav-links a:hover { background: var(--accent-lt); color: var(--accent); }
+.nav-links a.active { color: var(--accent); font-weight: 600; background: var(--accent-lt); }
+.nav-links a.sub { padding-left: 28px; font-size: 12px; color: #556; }
+.nav-links a.sub:hover { color: var(--accent); }
+
+/* ── Main ── */
+#main { flex: 1; max-width: 880px; padding: 40px 52px 100px 52px; overflow-x: hidden; }
+
+/* ── Sections ── */
+.doc-section { margin-bottom: 60px; }
+
+h1.page-title {
+  font-family: var(--mono); font-size: 27px; font-weight: 600;
+  color: #0d1f35; border-bottom: 2px solid var(--border);
+  padding-bottom: 14px; margin-bottom: 6px;
+  scroll-margin-top: calc(var(--topbar-h) + 16px);
+}
+.page-sub { font-size: 13px; color: var(--muted); margin-bottom: 36px; }
+
+h2.sec-head {
+  font-family: var(--mono); font-size: 20px; font-weight: 600;
+  color: #0d1f35; border-bottom: 1.5px solid var(--border);
+  padding-bottom: 8px; margin-bottom: 18px;
+  scroll-margin-top: calc(var(--topbar-h) + 14px);
+}
+
+h3.sub-head {
+  font-family: var(--mono); font-size: 14.5px; font-weight: 600;
+  color: #1a3a5c; margin: 28px 0 10px;
+  scroll-margin-top: calc(var(--topbar-h) + 14px);
+}
+
+h4.item-head {
+  font-family: var(--mono); font-size: 13px; font-weight: 600;
+  color: #0059b3;
+  scroll-margin-top: calc(var(--topbar-h) + 14px);
+}
+
+p { margin-bottom: 13px; }
+ul, ol { margin: 8px 0 13px 22px; }
+li { margin-bottom: 5px; }
+
+/* ── Signature block ── */
+.sig-block {
+  background: #f0f4fa;
+  border: 1px solid #c5d4e8;
+  border-left: 4px solid var(--accent);
+  padding: 16px 20px;
+  border-radius: 5px;
+  margin-bottom: 22px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.8;
+  word-break: break-all;
+  color: #1a2b42;
+}
+.sig-block .sig-class { color: #0059b3; font-weight: 600; font-size: 15px; }
+.sig-block .sig-param { color: #1c6038; }
+.sig-block .sig-default { color: #8a5a00; }
+.sig-block .sig-type { color: #7a4080; }
+
+/* ── Parameter entries ── */
+.param-entry {
+  border-bottom: 1px solid #eef0f3;
+  padding: 14px 0 10px 0;
+}
+.param-entry:last-child { border-bottom: none; }
+.param-name {
+  font-family: var(--mono); font-size: 13.5px; font-weight: 600;
+  color: #0d1f35;
+  display: inline-block; margin-right: 8px;
+}
+.param-type {
+  font-family: var(--mono); font-size: 11px;
+  background: #e8edf5; color: #3a5070;
+  padding: 1px 7px; border-radius: 3px;
+  margin-right: 6px; vertical-align: middle;
+}
+.param-default {
+  font-family: var(--mono); font-size: 11px;
+  background: #fdf3e0; color: #7a4a00;
+  padding: 1px 7px; border-radius: 3px;
+  vertical-align: middle;
+}
+.param-required {
+  font-family: var(--mono); font-size: 11px;
+  background: #fde8e8; color: #a00;
+  padding: 1px 7px; border-radius: 3px;
+  vertical-align: middle;
+}
+.param-desc { margin-top: 6px; color: #333; padding-left: 2px; }
+.param-desc p { margin-bottom: 5px; }
+
+/* ── Returns / Attributes ── */
+.returns-block {
+  background: #f7faf7;
+  border: 1px solid #c3ddc3;
+  border-left: 4px solid #2e7d32;
+  padding: 14px 20px;
+  border-radius: 5px;
+  margin: 14px 0;
+}
+.attr-name { font-family: var(--mono); font-size: 13px; font-weight: 600; color: #1a4a1a; }
+.attr-type { font-family: var(--mono); font-size: 11px; background: #dceedd; color: #1a4a1a; padding: 1px 7px; border-radius: 3px; margin-left: 6px; }
+
+/* ── Note / Warning boxes ── */
+.note-box {
+  background: #e8f4fd; border: 1px solid #90caf9;
+  border-left: 4px solid #1976d2;
+  padding: 12px 16px; border-radius: 4px; margin: 14px 0; font-size: 13.5px;
+}
+.warn-box {
+  background: #fff8e1; border: 1px solid #ffe082;
+  border-left: 4px solid #f9a825;
+  padding: 12px 16px; border-radius: 4px; margin: 14px 0; font-size: 13.5px;
+}
+.sas-box {
+  background: #f3eafd; border: 1px solid #ce93d8;
+  border-left: 4px solid #7b1fa2;
+  padding: 12px 16px; border-radius: 4px; margin: 14px 0; font-size: 13.5px;
+}
+
+/* ── Code blocks ── */
+code { font-family: var(--mono); font-size: 12.5px; background: var(--code-bg); padding: 1px 5px; border-radius: 3px; color: #b5000a; }
+pre {
+  font-family: var(--mono); font-size: 12.5px;
+  background: #1a2b42; color: #cde0f5;
+  padding: 20px 24px; border-radius: 6px;
+  overflow-x: auto; margin: 14px 0; line-height: 1.7;
+  border: 1px solid #253d5c;
+}
+pre .kw  { color: #5ab4ff; }
+pre .st  { color: #98d890; }
+pre .cm  { color: #6e8fa8; font-style: italic; }
+pre .nb  { color: #f5b87a; }
+pre .cl  { color: #e8c96e; }
+pre .nm  { color: #c9aaf7; }
+
+/* ── Tables ── */
+.doc-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
+.doc-table th {
+  background: #1a2b42; color: #cde0f5;
+  font-family: var(--mono); font-size: 11.5px; font-weight: 600;
+  padding: 9px 14px; text-align: left; letter-spacing: 0.04em;
+}
+.doc-table td { padding: 8px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.doc-table tr:hover td { background: #f5f7fb; }
+.doc-table td code { font-size: 12px; }
+
+/* ── Section label ── */
+.section-label {
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #8898aa;
+  margin-bottom: 6px; display: block;
+}
+
+/* ── Comparison table coding ── */
+.diff-ref { background: #e8f0fd; }
+.diff-eff { background: #f3eafd; }
+
+/* ── Plot cards ── */
+.plot-card {
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 16px 20px; margin: 14px 0;
+  background: #fafbfc;
+}
+.plot-card h4 { font-family: var(--mono); font-size: 13.5px; font-weight: 600; color: #0059b3; margin-bottom: 8px; }
+
+/* ── Footer ── */
+#footer { background: #f0f2f5; border-top: 1px solid var(--border); padding: 24px 52px; font-size: 12px; color: var(--muted); margin-left: var(--sidebar-w); }
+</style>
+</head>
+<body>
+
+<!-- ═══ TOPBAR ═══════════════════════════════════════════════════════════ -->
+<div id="topbar">
+  <span class="brand"><em>C2</em>ProcLogistic</span>
+  <span class="badge">v1.0</span>
+  <span class="desc">Python replication of SAS PROC LOGISTIC &nbsp;·&nbsp; Binary logistic regression</span>
+</div>
+
+<div id="layout">
+
+<!-- ═══ SIDEBAR ══════════════════════════════════════════════════════════ -->
+<nav id="sidebar">
+
+  <div class="nav-section">
+    <div class="nav-section-header open" onclick="toggleNav(this)">
+      Getting Started <span class="nav-arrow">&#9658;</span>
+    </div>
+    <div class="nav-links open">
+      <a href="#overview">Overview</a>
+      <a href="#install">Dependencies &amp; Install</a>
+      <a href="#import">Import</a>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-header open" onclick="toggleNav(this)">
+      Coding Methods <span class="nav-arrow">&#9658;</span>
+    </div>
+    <div class="nav-links open">
+      <a href="#coding-ref" class="sub">PARAM=REF (C2Logistic)</a>
+      <a href="#coding-effect" class="sub">PARAM=EFFECT (C2LogisticE)</a>
+      <a href="#coding-compare" class="sub">Side-by-side comparison</a>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-header open" onclick="toggleNav(this)">
+      C2Logistic <span class="nav-arrow">&#9658;</span>
+    </div>
+    <div class="nav-links open">
+      <a href="#c2logistic-sig">Signature</a>
+      <a href="#c2logistic-params" class="sub">Parameters</a>
+      <a href="#c2logistic-returns" class="sub">Attributes / Returns</a>
+      <a href="#c2logistic-examples" class="sub">Examples</a>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-header" onclick="toggleNav(this)">
+      C2LogisticE <span class="nav-arrow">&#9658;</span>
+    </div>
+    <div class="nav-links">
+      <a href="#c2logistice-sig">Signature</a>
+      <a href="#c2logistice-params" class="sub">Parameters</a>
+      <a href="#c2logistice-examples" class="sub">Examples</a>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-header" onclick="toggleNav(this)">
+      The ref Argument <span class="nav-arrow">&#9658;</span>
+    </div>
+    <div class="nav-links">
+      <a href="#ref-last" class="sub">'LAST' (default)</a>
+      <a href="#ref-first" class="sub">'FIRST'</a>
+      <a href="#ref-dict" class="sub">dict — per-variable</a>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-header" onclick="toggleNav(this)">
+      Optional Statistics <span class="nav-arrow">&#9658;</span>
+    </div>
+    <div class="nav-links">
+      <a href="#rsquare">rsquare</a>
+      <a href="#lackfit">lackfit (Hosmer-Lemeshow)</a>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-header" onclick="toggleNav(this)">
+      Plots <span class="nav-arrow">&#9658;</span>
+    </div>
+    <div class="nav-links">
+      <a href="#plot-forest" class="sub">Forest Plot</a>
+      <a href="#plot-roc" class="sub">ROC Curve</a>
+      <a href="#plot-influence" class="sub">Influence Plots</a>
+      <a href="#plot-effect" class="sub">Effect Plot</a>
+      <a href="#plot-options" class="sub">plot_options dict</a>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-header" onclick="toggleNav(this)">
+      Helper Functions <span class="nav-arrow">&#9658;</span>
+    </div>
+    <div class="nav-links">
+      <a href="#helper-forest">C2ForestPlot</a>
+      <a href="#helper-roc">C2RocPlot</a>
+      <a href="#helper-influence">C2InfluencePlot</a>
+      <a href="#helper-effect">C2EffectPlot</a>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-header" onclick="toggleNav(this)">
+      Output &amp; Export <span class="nav-arrow">&#9658;</span>
+    </div>
+    <div class="nav-links">
+      <a href="#output-html">HTML output</a>
+      <a href="#output-csv">CSV / Excel</a>
+      <a href="#output-dataset">.dataset property</a>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-header" onclick="toggleNav(this)">
+      Examples <span class="nav-arrow">&#9658;</span>
+    </div>
+    <div class="nav-links">
+      <a href="#ex-minimal">Minimal call</a>
+      <a href="#ex-full">Full call</a>
+      <a href="#ex-by">BY processing</a>
+      <a href="#ex-ref-dict">dict ref</a>
+      <a href="#ex-plots">Plot customisation</a>
+      <a href="#ex-dataset">Accessing .dataset</a>
+    </div>
+  </div>
+
+</nav><!-- /sidebar -->
+
+<!-- ═══ MAIN ══════════════════════════════════════════════════════════════ -->
+<main id="main">
+
+<!-- ──────────────────────────────────────────────────────────────────────
+     OVERVIEW
+     ────────────────────────────────────────────────────────────────────── -->
+<section class="doc-section" id="overview">
+  <h1 class="page-title">C2ProcLogistic</h1>
+  <p class="page-sub">Python replication of SAS <code>PROC LOGISTIC</code> for binary outcomes</p>
+
+  <p>
+    <strong>C2ProcLogistic</strong> provides two classes — <code>C2Logistic</code> and <code>C2LogisticE</code> —
+    that replicate the output, defaults, and behaviour of SAS <code>PROC LOGISTIC</code> for binary
+    (0/1 or two-level) response variables. The library handles model fitting, result tables, goodness-of-fit
+    statistics, and four Plotly-based diagnostic plots, all in a single function call.
+  </p>
+
+  <p>
+    Both classes accept identical arguments. The only difference is the coding method applied
+    to categorical predictors: <code>C2Logistic</code> uses reference (dummy) coding
+    (<code>PARAM=REF</code> in SAS), while <code>C2LogisticE</code> uses effect coding
+    (<code>PARAM=EFFECT</code> in SAS). See <a href="#coding-compare">Coding Methods</a> for a full comparison.
+  </p>
+
+  <div class="note-box">
+    <strong>SAS culture defaults:</strong> Key defaults are aligned with SAS PROC LOGISTIC — 
+    <code>ref='LAST'</code> (last sorted level is reference, matching SAS <code>ORDER=FORMATTED</code> with <code>PARAM=REF</code>),
+    <code>rsquare=False</code>, <code>lackfit=False</code>, <code>maxiter=25</code>, <code>ci=0.95</code>.
+    Opting into <code>rsquare</code> or <code>lackfit</code> mirrors explicitly requesting those options in SAS.
+  </div>
+
+  <h3 class="sub-head" id="install">Dependencies &amp; Install</h3>
+  <p>The library depends on the following packages:</p>
+  <table class="doc-table">
+    <tr><th>Package</th><th>Purpose</th></tr>
+    <tr><td><code>numpy</code></td><td>Numerical computation (arrays, matrix operations)</td></tr>
+    <tr><td><code>pandas</code></td><td>DataFrame input/output and tabular results</td></tr>
+    <tr><td><code>scipy</code></td><td>Statistical distributions (chi-square, normal) for p-values and CIs</td></tr>
+    <tr><td><code>statsmodels</code></td><td>Formula parsing (patsy), design matrix construction</td></tr>
+    <tr><td><code>plotly</code></td><td>All four diagnostic plots (Forest, ROC, Influence, Effect)</td></tr>
+  </table>
+
+  <h3 class="sub-head" id="import">Import</h3>
+<pre><span class="cm"># Main classes</span>
+<span class="kw">from</span> C2ProcLogistic <span class="kw">import</span> C2Logistic, C2LogisticE
+
+<span class="cm"># Plot helper functions (optional — for post-hoc customisation)</span>
+<span class="kw">from</span> C2ProcLogistic <span class="kw">import</span> C2ForestPlot, C2RocPlot, C2InfluencePlot, C2EffectPlot</pre>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────────
+     CODING METHODS
+     ────────────────────────────────────────────────────────────────────── -->
+<section class="doc-section" id="coding-methods">
+  <h2 class="sec-head">Coding Methods</h2>
+
+  <p>
+    When a predictor is categorical (non-numeric), the library must convert its levels into numeric
+    columns before fitting the logistic model. The two classes implement different conventions for
+    this conversion, matching the two most common SAS <code>PARAM=</code> options.
+  </p>
+
+  <h3 class="sub-head" id="coding-ref">PARAM=REF — Reference (Dummy) Coding &nbsp;→&nbsp; <code>C2Logistic</code></h3>
+  <div class="sas-box">SAS equivalent: <code>MODEL outcome = predictors / PARAM=REF;</code></div>
+  <p>
+    For a categorical variable with levels A, B, C where C is the reference (default: last sorted),
+    two binary columns are created: one for A (1 if A, else 0) and one for B (1 if B, else 0).
+    Level C gets all zeros in both columns — it is the reference and has no explicit column.
+  </p>
+  <p>
+    <strong>What the coefficient means:</strong> Each coefficient is the log-odds of the event
+    for that level <em>relative to the reference level</em>, holding other predictors constant.
+    The odds ratio for level A compares A vs C directly.
+  </p>
+  <p>
+    <strong>The reference level is always excluded</strong> from the parameter table. You will not see
+    an estimate row for the reference level — only for the non-reference levels.
+  </p>
+
+  <h3 class="sub-head" id="coding-effect">PARAM=EFFECT — Effect Coding &nbsp;→&nbsp; <code>C2LogisticE</code></h3>
+  <div class="sas-box">SAS equivalent: <code>MODEL outcome = predictors / PARAM=EFFECT;</code></div>
+  <p>
+    Same column structure as reference coding, <em>except</em> the reference level receives
+    <strong>−1</strong> in every dummy column instead of 0. All other levels still receive 0 or 1 as normal.
+  </p>
+  <p>
+    <strong>What the coefficient means:</strong> Each coefficient represents the deviation of that
+    level's log-odds from the <em>unweighted grand mean</em> log-odds across all levels.
+    The reference level's deviation is the negative sum of all other level coefficients
+    (it is implied, not printed directly).
+  </p>
+  <p>
+    <strong>Use effect coding when:</strong> you want to interpret effects relative to an overall average
+    rather than relative to a specific reference category — common in designed experiments and
+    analysis of variance-style interpretations.
+  </p>
+
+  <h3 class="sub-head" id="coding-compare">Side-by-side comparison</h3>
+  <table class="doc-table">
+    <tr>
+      <th>Property</th>
+      <th style="background:#1a3a6a">C2Logistic (PARAM=REF)</th>
+      <th style="background:#3a1a6a">C2LogisticE (PARAM=EFFECT)</th>
+    </tr>
+    <tr>
+      <td>SAS option</td>
+      <td class="diff-ref"><code>PARAM=REF</code></td>
+      <td class="diff-eff"><code>PARAM=EFFECT</code></td>
+    </tr>
+    <tr>
+      <td>Reference level value in dummy columns</td>
+      <td class="diff-ref">0 (omitted)</td>
+      <td class="diff-eff">−1 (explicit)</td>
+    </tr>
+    <tr>
+      <td>Coefficient interpretation</td>
+      <td class="diff-ref">vs. reference level</td>
+      <td class="diff-eff">vs. grand mean</td>
+    </tr>
+    <tr>
+      <td>Intercept interpretation</td>
+      <td class="diff-ref">Log-odds at reference level (all others = 0)</td>
+      <td class="diff-eff">Grand mean log-odds</td>
+    </tr>
+    <tr>
+      <td>All arguments identical?</td>
+      <td class="diff-ref">—</td>
+      <td class="diff-eff">Yes — same interface</td>
+    </tr>
+    <tr>
+      <td>Default in this library</td>
+      <td class="diff-ref"><strong>C2Logistic is the primary class</strong></td>
+      <td class="diff-eff">C2LogisticE for effect-coding variant</td>
+    </tr>
+  </table>
+  <div class="note-box">
+    <strong>Continuous predictors are unaffected.</strong> Coding method only changes how
+    <em>categorical</em> predictors (non-numeric columns) are handled. Numeric columns pass
+    through unchanged in both classes.
+  </div>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────────
+     C2LOGISTIC
+     ────────────────────────────────────────────────────────────────────── -->
+<section class="doc-section" id="c2logistic">
+  <h2 class="sec-head">C2Logistic</h2>
+  <span class="section-label">class</span>
+
+  <div class="sig-block" id="c2logistic-sig">
+    <span class="sig-class">C2Logistic</span>(<span class="sig-param">data</span>,
+    <span class="sig-param">outcome</span>,
+    <span class="sig-param">predictors</span>,
+    *,
+    <span class="sig-param">event</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">ref</span>=<span class="sig-default">'LAST'</span>,
+    <span class="sig-param">by</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">maxiter</span>=<span class="sig-default">25</span>,
+    <span class="sig-param">ci</span>=<span class="sig-default">0.95</span>,
+    <span class="sig-param">rsquare</span>=<span class="sig-default">False</span>,
+    <span class="sig-param">lackfit</span>=<span class="sig-default">False</span>,
+    <span class="sig-param">decimals</span>=<span class="sig-default">4</span>,
+    <span class="sig-param">output</span>=<span class="sig-default">'html'</span>,
+    <span class="sig-param">filepath</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">forest_plot</span>=<span class="sig-default">False</span>,
+    <span class="sig-param">roc_plot</span>=<span class="sig-default">False</span>,
+    <span class="sig-param">influence</span>=<span class="sig-default">False</span>,
+    <span class="sig-param">effect_plot</span>=<span class="sig-default">False</span>,
+    <span class="sig-param">plot_options</span>=<span class="sig-default">None</span>)
+  </div>
+
+  <p>
+    Fits a binary logistic regression model using reference (dummy) coding for categorical predictors,
+    matching SAS <code>PROC LOGISTIC</code> with <code>PARAM=REF</code>.
+    Model fitting uses Fisher scoring (iteratively reweighted least squares).
+    On construction the model runs immediately, prints a console summary,
+    builds any requested plots, and saves the output file.
+  </p>
+
+  <!-- PARAMETERS -->
+  <h3 class="sub-head" id="c2logistic-params">Parameters</h3>
+
+  <div class="param-entry">
+    <span class="param-name">data</span>
+    <span class="param-type">pd.DataFrame</span>
+    <span class="param-required">required</span>
+    <div class="param-desc">
+      <p>The input dataset as a pandas DataFrame. All outcome and predictor columns must be present.
+      Rows with missing values in the outcome or any predictor are silently dropped before fitting.</p>
+    </div>
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">outcome</span>
+    <span class="param-type">str</span>
+    <span class="param-required">required</span>
+    <div class="param-desc">
+      <p>Name of the response (dependent) variable column. Must be binary: either numeric 0/1,
+      or a two-level string/categorical column (e.g. <code>'yes'/'no'</code>, <code>'event'/'nonevent'</code>).</p>
+      <p>When the column is numeric 0/1, the model is fitted as-is (models P(y=1)).
+      When the column is non-numeric, the higher alphabetically-sorted level is treated as the event
+      by default — override with the <code>event</code> argument.</p>
+    </div>
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">predictors</span>
+    <span class="param-type">list of str</span>
+    <span class="param-required">required</span>
+    <div class="param-desc">
+      <p>List of predictor (independent variable) column names. Example: <code>['age', 'job_C', 'balance']</code>.</p>
+      <p>Numeric columns are treated as continuous and enter the model unchanged.
+      Non-numeric (object/categorical) columns are automatically encoded using the coding method
+      of the class (<code>C2Logistic</code> → reference coding).</p>
+      <p>Column names that have already been dummy-encoded externally (e.g. <code>job_C</code>
+      where <code>_C</code> signals categorical) should be listed here as regular names — the class
+      inspects the column's dtype, not its name.</p>
+    </div>
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">event</span>
+    <span class="param-type">str</span>
+    <span class="param-default">default: None</span>
+    <div class="param-desc">
+      <p>Specifies which value of <code>outcome</code> is the event (the outcome being modelled as P=1).
+      Only needed when the outcome column is non-numeric.</p>
+      <p>If <code>None</code>, the higher alphabetically-sorted level is used as the event — consistent with
+      SAS default event ordering. Pass the exact value as a string, e.g. <code>event='yes'</code>
+      or <code>event='1'</code>.</p>
+      <p>Raises <code>ValueError</code> if the supplied value is not found in the outcome column.</p>
+    </div>
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">ref</span>
+    <span class="param-type">str or dict</span>
+    <span class="param-default">default: 'LAST'</span>
+    <div class="param-desc">
+      <p>Controls the reference level for categorical predictors. Three forms are accepted:</p>
+      <ul>
+        <li><code>'LAST'</code> — last sorted level becomes the reference. <strong>This is the default</strong>,
+            matching SAS <code>PARAM=REF</code> with <code>ORDER=FORMATTED</code>.</li>
+        <li><code>'FIRST'</code> — first sorted level is the reference (patsy's natural default).</li>
+        <li><code>{'varname': 'level'}</code> — a dict specifying the reference level per variable.
+            Variables not mentioned in the dict fall back to <code>'FIRST'</code>.</li>
+      </ul>
+      <p>This argument has no effect on numeric (continuous) predictors.</p>
+      <p>See the <a href="#ref-last">ref argument section</a> for detailed examples.</p>
+    </div>
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">by</span>
+    <span class="param-type">str</span>
+    <span class="param-default">default: None</span>
+    <div class="param-desc">
+      <p>Name of a grouping column. When supplied, the model is fitted separately for each
+      unique value of this column (equivalent to a SAS <code>BY</code> statement).
+      Results for each group are printed in sequence and all included in a single output file.</p>
+      <p>The <code>.dataset</code> property will contain a <code>label</code> column identifying
+      the group (e.g. <code>"education = primary"</code>).</p>
+    </div>
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">maxiter</span>
+    <span class="param-type">int</span>
+    <span class="param-default">default: 25</span>
+    <div class="param-desc">
+      <p>Maximum number of Fisher scoring (IWLS) iterations allowed for convergence.
+      Matches the SAS <code>MAXITER=</code> option default of 25.
+      Convergence criterion is gradient < 1e-8 (matching SAS <code>GCONV=1e-8</code>).
+      If the model does not converge within this limit, a warning is issued and results
+      are reported at the final iteration.</p>
+    </div>
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">ci</span>
+    <span class="param-type">float</span>
+    <span class="param-default">default: 0.95</span>
+    <div class="param-desc">
+      <p>Confidence interval level as a proportion between 0 and 1.
+      Default <code>0.95</code> produces 95% Wald confidence intervals for log-odds and odds ratios.
+      Change to <code>0.90</code> for 90% CIs, <code>0.99</code> for 99% CIs, etc.</p>
+      <p>Raises <code>ValueError</code> if not strictly between 0 and 1.</p>
+    </div>
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">rsquare</span>
+    <span class="param-type">bool</span>
+    <span class="param-default">default: False</span>
+    <div class="param-desc">
+      <p>When <code>True</code>, computes and prints two R-Square metrics based on log-likelihoods:</p>
+      <ul>
+        <li><strong>R-Square</strong> — Cox &amp; Snell pseudo R²</li>
+        <li><strong>Max-rescaled R-Square</strong> — Nagelkerke R² (rescaled so maximum = 1)</li>
+      </ul>
+      <p><code>False</code> by default, matching the SAS default where these are not printed unless
+      explicitly requested with the <code>/RSQUARE</code> option.</p>
+      <p>See <a href="#rsquare">Optional Statistics — rsquare</a> for details.</p>
+    </div>
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">lackfit</span>
+    <span class="param-type">bool</span>
+    <span class="param-default">default: False</span>
+    <div class="param-desc">
+      <p>When <code>True</code>, computes and prints the <strong>Hosmer-Lemeshow goodness-of-fit test</strong>,
+      including the full partition table (observed vs expected counts by decile group) and the
+      chi-square test statistic with p-value.</p>
+      <p><code>False</code> by default, matching the SAS default where this is only produced
+      when <code>/LACKFIT</code> is specified on the <code>MODEL</code> statement.</p>
+      <p>See <a href="#lackfit">Optional Statistics — lackfit</a> for details.</p>
+    </div>
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">decimals</span>
+    <span class="param-type">int</span>
+    <span class="param-default">default: 4</span>
+    <div class="param-desc">
+      <p>Number of decimal places used in all printed tables (console and HTML output).
+      Applies to parameter estimates, standard errors, odds ratios, confidence intervals,
+      and p-values. Does not affect the <code>.dataset</code> DataFrame, which always stores
+      6 decimal places.</p>
+    </div>
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">output</span>
+    <span class="param-type">str</span>
+    <span class="param-default">default: 'html'</span>
+    <div class="param-desc">
+      <p>Format of the saved output file. Accepted values:</p>
+      <ul>
+        <li><code>'html'</code> — styled HTML report containing all result tables and embedded plots</li>
+        <li><code>'csv'</code> — flat CSV of the <code>.dataset</code> DataFrame</li>
+        <li><code>'excel'</code> — Excel <code>.xlsx</code> file of the <code>.dataset</code> DataFrame</li>
+      </ul>
+      <p>Raises <code>ValueError</code> for any other value.</p>
+    </div>
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">filepath</span>
+    <span class="param-type">str</span>
+    <span class="param-default">default: None</span>
+    <div class="param-desc">
+      <p>Path (including filename) for the output file.
+      If <code>None</code>, the file is saved in the current working directory as
+      <code>output.html</code>, <code>output.csv</code>, or <code>output.xlsx</code>
+      depending on the <code>output</code> argument.
+      A directory path may be included, e.g. <code>'results/run1.html'</code>.</p>
+    </div>
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">forest_plot</span>
+    <span class="param-type">bool</span>
+    <span class="param-default">default: False</span>
+    <div class="param-desc">
+      <p>When <code>True</code>, generates a Forest Plot showing odds ratios and their Wald confidence
+      intervals for all non-intercept parameters. The plot is embedded in the HTML output and
+      accessible as <code>result.forest_plot</code>. See <a href="#plot-forest">Plots — Forest Plot</a>.</p>
+    </div>
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">roc_plot</span>
+    <span class="param-type">bool</span>
+    <span class="param-default">default: False</span>
+    <div class="param-desc">
+      <p>When <code>True</code>, generates an ROC (Receiver Operating Characteristic) curve
+      showing sensitivity vs 1-specificity across 200 threshold values, with the AUC displayed
+      in the legend. Accessible as <code>result.roc_plot</code>. See <a href="#plot-roc">Plots — ROC Curve</a>.</p>
+    </div>
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">influence</span>
+    <span class="param-type">bool</span>
+    <span class="param-default">default: False</span>
+    <div class="param-desc">
+      <p>When <code>True</code>, generates two 2×2 panels of influence diagnostic plots:</p>
+      <ul>
+        <li><strong>Panel 1:</strong> Pearson residual, Deviance residual, Leverage, CI Displacement C</li>
+        <li><strong>Panel 2:</strong> CI Displacement Cbar, Chi-Square deletion difference, Deviance deletion difference</li>
+      </ul>
+      <p>Accessible as <code>result.influence_plot</code> which returns a tuple <code>(panel1, panel2)</code>.
+      See <a href="#plot-influence">Plots — Influence Plots</a>.</p>
+    </div>
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">effect_plot</span>
+    <span class="param-type">bool</span>
+    <span class="param-default">default: False</span>
+    <div class="param-desc">
+      <p>When <code>True</code>, generates an Effect Plot (predicted probability curve) showing
+      modelled probability of the event against the first continuous predictor in the model,
+      with separate lines for each level of the first categorical predictor (if present).
+      All other continuous predictors are held at their mean; other categoricals at their mode.
+      Accessible as <code>result.effect_plot</code>. See <a href="#plot-effect">Plots — Effect Plot</a>.</p>
+    </div>
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">plot_options</span>
+    <span class="param-type">dict</span>
+    <span class="param-default">default: None</span>
+    <div class="param-desc">
+      <p>Optional dict of Plotly display overrides applied to <em>all</em> plots generated in
+      the call. Accepted keys:</p>
+      <ul>
+        <li><code>'width'</code> — figure width in pixels</li>
+        <li><code>'height'</code> — figure height in pixels</li>
+        <li><code>'title'</code> — title override (applied to all plots — use helper functions for per-plot titles)</li>
+      </ul>
+      <p>Example: <code>plot_options={'width': 900, 'height': 500}</code>.
+      For more granular per-plot control, use the
+      <a href="#helper-forest">plot helper functions</a> after the call.</p>
+    </div>
+  </div>
+
+  <!-- RETURNS -->
+  <h3 class="sub-head" id="c2logistic-returns">Attributes / Returns</h3>
+  <p>The constructor runs the model immediately. The result object exposes the following attributes:</p>
+
+  <div class="returns-block">
+    <div style="margin-bottom:12px">
+      <span class="attr-name">.dataset</span>
+      <span class="attr-type">pd.DataFrame</span>
+      <p style="margin-top:6px">Results as a flat pandas DataFrame. One row per parameter per BY-group.
+      Columns include: <code>label</code>, <code>parameter</code>, <code>log_or</code>, <code>se</code>,
+      <code>wald_chisq</code>, <code>p_value</code>, confidence interval bounds for log-OR and OR
+      (named dynamically with the CI level, e.g. <code>or_lower_95</code>), <code>odds_ratio</code>,
+      <code>n_obs</code>, <code>converged</code>, <code>iterations</code>, <code>separation</code>,
+      <code>warning_issued</code>. All numeric columns stored to 6 decimal places.</p>
+    </div>
+    <div style="margin-bottom:12px">
+      <span class="attr-name">.forest_plot</span>
+      <span class="attr-type">Plotly Figure</span>
+      <p style="margin-top:6px">Forest Plot figure. Only available when <code>forest_plot=True</code> was passed.
+      Raises <code>RuntimeError</code> if accessed without enabling. Use <code>fig.show()</code> to display
+      interactively or <code>fig.write_html('file.html')</code> to save.</p>
+    </div>
+    <div style="margin-bottom:12px">
+      <span class="attr-name">.roc_plot</span>
+      <span class="attr-type">Plotly Figure</span>
+      <p style="margin-top:6px">ROC Curve figure. Only available when <code>roc_plot=True</code> was passed.
+      Raises <code>RuntimeError</code> if accessed without enabling.</p>
+    </div>
+    <div style="margin-bottom:12px">
+      <span class="attr-name">.influence_plot</span>
+      <span class="attr-type">tuple of Plotly Figures — (panel1, panel2)</span>
+      <p style="margin-top:6px">Influence diagnostic panels. Only available when <code>influence=True</code> was passed.
+      Returns a tuple of two Plotly figures. Raises <code>RuntimeError</code> if accessed without enabling.</p>
+    </div>
+    <div>
+      <span class="attr-name">.effect_plot</span>
+      <span class="attr-type">Plotly Figure</span>
+      <p style="margin-top:6px">Predicted probability curve. Only available when <code>effect_plot=True</code> was passed.
+      Raises <code>RuntimeError</code> if accessed without enabling.</p>
+    </div>
+  </div>
+
+  <!-- EXAMPLES -->
+  <h3 class="sub-head" id="c2logistic-examples">Examples</h3>
+<pre><span class="kw">from</span> C2ProcLogistic <span class="kw">import</span> C2Logistic
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+df = pd.read_csv(<span class="st">'mydata.csv'</span>)
+
+<span class="cm"># Minimal call — all defaults</span>
+result = <span class="cl">C2Logistic</span>(
+    data       = df,
+    outcome    = <span class="st">'y'</span>,
+    predictors = [<span class="st">'age'</span>, <span class="st">'job_C'</span>, <span class="st">'balance'</span>]
+)
+
+<span class="cm"># Full call — all options shown</span>
+result = <span class="cl">C2Logistic</span>(
+    data         = df,
+    outcome      = <span class="st">'purchased'</span>,
+    event        = <span class="st">'yes'</span>,          <span class="cm"># model P(purchased='yes')</span>
+    predictors   = [<span class="st">'age'</span>, <span class="st">'job_C'</span>, <span class="st">'balance'</span>],
+    ref          = <span class="st">'LAST'</span>,         <span class="cm"># last sorted level is reference (SAS default)</span>
+    by           = <span class="st">'education'</span>,    <span class="cm"># fit separately per education group</span>
+    maxiter      = <span class="nb">25</span>,
+    ci           = <span class="nb">0.95</span>,
+    rsquare      = <span class="nm">True</span>,            <span class="cm"># print R-Square and Max-rescaled R-Square</span>
+    lackfit      = <span class="nm">True</span>,            <span class="cm"># print Hosmer-Lemeshow test</span>
+    decimals     = <span class="nb">4</span>,
+    output       = <span class="st">'html'</span>,
+    filepath     = <span class="st">'results/model1.html'</span>,
+    forest_plot  = <span class="nm">True</span>,
+    roc_plot     = <span class="nm">True</span>,
+    influence    = <span class="nm">True</span>,
+    effect_plot  = <span class="nm">True</span>,
+    plot_options = {<span class="st">'width'</span>: <span class="nb">900</span>, <span class="st">'height'</span>: <span class="nb">500</span>}
+)</pre>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────────
+     C2LOGISTICE
+     ────────────────────────────────────────────────────────────────────── -->
+<section class="doc-section" id="c2logistice">
+  <h2 class="sec-head">C2LogisticE</h2>
+  <span class="section-label">class</span>
+
+  <div class="note-box">
+    <strong>Identical interface to C2Logistic.</strong> Every argument name, type, default value,
+    and behaviour is the same. The only difference is the internal encoding of categorical predictors:
+    <code>C2LogisticE</code> uses effect coding (reference level = −1) instead of dummy coding
+    (reference level = 0/omitted). See <a href="#coding-compare">Coding Methods</a>.
+  </div>
+
+  <div class="sig-block" id="c2logistice-sig">
+    <span class="sig-class">C2LogisticE</span>(<span class="sig-param">data</span>,
+    <span class="sig-param">outcome</span>,
+    <span class="sig-param">predictors</span>,
+    *,
+    <span class="sig-param">event</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">ref</span>=<span class="sig-default">'LAST'</span>,
+    <span class="sig-param">by</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">maxiter</span>=<span class="sig-default">25</span>,
+    <span class="sig-param">ci</span>=<span class="sig-default">0.95</span>,
+    <span class="sig-param">rsquare</span>=<span class="sig-default">False</span>,
+    <span class="sig-param">lackfit</span>=<span class="sig-default">False</span>,
+    <span class="sig-param">decimals</span>=<span class="sig-default">4</span>,
+    <span class="sig-param">output</span>=<span class="sig-default">'html'</span>,
+    <span class="sig-param">filepath</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">forest_plot</span>=<span class="sig-default">False</span>,
+    <span class="sig-param">roc_plot</span>=<span class="sig-default">False</span>,
+    <span class="sig-param">influence</span>=<span class="sig-default">False</span>,
+    <span class="sig-param">effect_plot</span>=<span class="sig-default">False</span>,
+    <span class="sig-param">plot_options</span>=<span class="sig-default">None</span>)
+  </div>
+
+  <p>
+    Fits a binary logistic regression model using effect coding for categorical predictors,
+    matching SAS <code>PROC LOGISTIC</code> with <code>PARAM=EFFECT</code>.
+  </p>
+
+  <h3 class="sub-head" id="c2logistice-params">Parameters</h3>
+  <p>All parameters are identical to <a href="#c2logistic-params"><code>C2Logistic</code></a>.
+  The table below highlights only what changes in behaviour due to effect coding:</p>
+
+  <table class="doc-table">
+    <tr><th>Parameter</th><th>Default</th><th>Behaviour specific to C2LogisticE</th></tr>
+    <tr>
+      <td><code>ref</code></td>
+      <td><code>'LAST'</code></td>
+      <td>Still controls <em>which</em> level is the reference. In effect coding, that level receives −1
+      in all dummy columns. The same three forms are accepted: <code>'LAST'</code>, <code>'FIRST'</code>, dict.</td>
+    </tr>
+    <tr>
+      <td>All others</td>
+      <td>same</td>
+      <td>Identical behaviour to <code>C2Logistic</code> in all respects.</td>
+    </tr>
+  </table>
+
+  <p>The console header will print <code>[PARAM=EFFECT]</code> to distinguish output from <code>C2Logistic</code>.</p>
+
+  <h3 class="sub-head" id="c2logistice-examples">Examples</h3>
+<pre><span class="kw">from</span> C2ProcLogistic <span class="kw">import</span> C2LogisticE
+
+<span class="cm"># Minimal — effect coding, all other defaults same as C2Logistic</span>
+result = <span class="cl">C2LogisticE</span>(
+    data       = df,
+    outcome    = <span class="st">'purchased'</span>,
+    predictors = [<span class="st">'age'</span>, <span class="st">'job_C'</span>, <span class="st">'balance'</span>]
+)
+
+<span class="cm"># With event and plots</span>
+result = <span class="cl">C2LogisticE</span>(
+    data        = df,
+    outcome     = <span class="st">'purchased'</span>,
+    event       = <span class="st">'yes'</span>,
+    predictors  = [<span class="st">'age'</span>, <span class="st">'balance_T'</span>, <span class="st">'job_C'</span>],
+    ref         = <span class="st">'LAST'</span>,
+    ci          = <span class="nb">0.95</span>,
+    rsquare     = <span class="nm">True</span>,
+    lackfit     = <span class="nm">True</span>,
+    forest_plot = <span class="nm">True</span>,
+    roc_plot    = <span class="nm">True</span>,
+)
+
+df_out = result.dataset</pre>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────────
+     THE ref ARGUMENT
+     ────────────────────────────────────────────────────────────────────── -->
+<section class="doc-section" id="ref-argument">
+  <h2 class="sec-head">The <code>ref</code> Argument</h2>
+
+  <p>
+    The <code>ref</code> argument controls the reference level for <em>categorical</em> (non-numeric)
+    predictors. It applies in both <code>C2Logistic</code> and <code>C2LogisticE</code>.
+    Three forms are accepted.
+  </p>
+
+  <div class="sas-box">
+    <strong>SAS parallel:</strong> <code>ref='LAST'</code> matches SAS <code>PARAM=REF ORDER=FORMATTED</code>
+    where the last formatted value (alphabetically last) is the reference.
+    <code>ref='FIRST'</code> matches <code>PARAM=REF ORDER=DATA</code> or patsy's natural default.
+  </div>
+
+  <h3 class="sub-head" id="ref-last">'LAST' — default</h3>
+  <p>
+    The last alphabetically-sorted unique level of each categorical predictor becomes the reference.
+    This is the default and mirrors SAS default behaviour.
+    For a predictor with levels <code>['admin', 'blue-collar', 'student']</code>,
+    the reference would be <code>'student'</code> (last alphabetically).
+    You will see estimates for <code>admin</code> and <code>blue-collar</code> but not <code>student</code>.
+  </p>
+<pre>result = <span class="cl">C2Logistic</span>(
+    data       = df,
+    outcome    = <span class="st">'y'</span>,
+    predictors = [<span class="st">'age'</span>, <span class="st">'job_C'</span>],
+    ref        = <span class="st">'LAST'</span>   <span class="cm"># default — can be omitted</span>
+)</pre>
+
+  <h3 class="sub-head" id="ref-first">'FIRST'</h3>
+  <p>
+    The first alphabetically-sorted unique level becomes the reference.
+    For <code>['admin', 'blue-collar', 'student']</code>, the reference would be <code>'admin'</code>.
+    This is patsy's natural default for <code>C()</code> terms.
+  </p>
+<pre>result = <span class="cl">C2Logistic</span>(
+    data       = df,
+    outcome    = <span class="st">'y'</span>,
+    predictors = [<span class="st">'age'</span>, <span class="st">'job_C'</span>],
+    ref        = <span class="st">'FIRST'</span>
+)</pre>
+
+  <h3 class="sub-head" id="ref-dict">dict — per-variable reference levels</h3>
+  <p>
+    A dict maps each categorical variable name to its chosen reference level.
+    Variables not mentioned in the dict fall back to <code>'FIRST'</code> (patsy default).
+    The reference level value must be supplied as a string exactly matching a value in that column.
+  </p>
+<pre><span class="cm"># Set 'management' as reference for job_C, 'married' for marital_C</span>
+result = <span class="cl">C2Logistic</span>(
+    data       = df,
+    outcome    = <span class="st">'y'</span>,
+    predictors = [<span class="st">'age'</span>, <span class="st">'job_C'</span>, <span class="st">'marital_C'</span>],
+    ref        = {<span class="st">'job_C'</span>: <span class="st">'management'</span>, <span class="st">'marital_C'</span>: <span class="st">'married'</span>}
+)</pre>
+
+  <div class="warn-box">
+    <strong>Validation:</strong> When using the dict form, the library validates that each key
+    is a column in <code>data</code> and each value is an actual level in that column.
+    A <code>ValueError</code> is raised on mismatch — check column names and values exactly.
+  </div>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────────
+     OPTIONAL STATISTICS
+     ────────────────────────────────────────────────────────────────────── -->
+<section class="doc-section" id="optional-stats">
+  <h2 class="sec-head">Optional Statistics</h2>
+  <p>
+    Two additional statistics blocks are off by default to match SAS defaults.
+    Enable either or both independently.
+  </p>
+
+  <h3 class="sub-head" id="rsquare">rsquare — R-Square metrics</h3>
+  <div class="sas-box">SAS equivalent: <code>MODEL outcome = predictors / RSQUARE;</code></div>
+  <p>
+    When <code>rsquare=True</code>, two pseudo R-Square values are printed in the console
+    summary and included in the HTML output:
+  </p>
+  <ul>
+    <li><strong>R-Square</strong> — computed from the full and null log-likelihoods and n.
+    Analogous to Cox &amp; Snell R². Always between 0 and a value less than 1.</li>
+    <li><strong>Max-rescaled R-Square</strong> — R-Square rescaled so that its theoretical maximum equals 1.
+    Analogous to Nagelkerke R². Directly comparable across models with different sample sizes.</li>
+  </ul>
+  <p>
+    Both values are printed to the number of <code>decimals</code> specified.
+    Neither appears in <code>.dataset</code> — they are summary statistics, not per-parameter rows.
+  </p>
+<pre>result = <span class="cl">C2Logistic</span>(
+    data       = df,
+    outcome    = <span class="st">'y'</span>,
+    predictors = [<span class="st">'age'</span>, <span class="st">'job_C'</span>],
+    rsquare    = <span class="nm">True</span>
+)</pre>
+
+  <h3 class="sub-head" id="lackfit">lackfit — Hosmer-Lemeshow goodness-of-fit test</h3>
+  <div class="sas-box">SAS equivalent: <code>MODEL outcome = predictors / LACKFIT;</code></div>
+  <p>
+    When <code>lackfit=True</code>, the <strong>Hosmer-Lemeshow test</strong> is computed and printed.
+    This test assesses whether the model fits the data well by comparing observed and expected
+    event counts across groups of observations sorted by predicted probability.
+  </p>
+  <p>Two blocks are printed:</p>
+  <ul>
+    <li>
+      <strong>Partition table</strong> — rows for each decile group showing:
+      Group number, Total observations, Observed event count, Expected event count,
+      Observed non-event count, Expected non-event count.
+      The grouping algorithm follows the exact SAS SECT046 method (block-aware decile splitting
+      with a minimum group size of n/20).
+    </li>
+    <li>
+      <strong>Test summary</strong> — Chi-Square statistic, degrees of freedom, and p-value.
+      A large p-value (e.g. &gt; 0.05) suggests the model fits the data adequately.
+      A small p-value suggests lack of fit.
+    </li>
+  </ul>
+<pre>result = <span class="cl">C2Logistic</span>(
+    data       = df,
+    outcome    = <span class="st">'y'</span>,
+    predictors = [<span class="st">'age'</span>, <span class="st">'job_C'</span>, <span class="st">'balance'</span>],
+    lackfit    = <span class="nm">True</span>
+)</pre>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────────
+     PLOTS
+     ────────────────────────────────────────────────────────────────────── -->
+<section class="doc-section" id="plots">
+  <h2 class="sec-head">Plots</h2>
+  <p>
+    All plots are generated using <strong>Plotly</strong> and are off by default.
+    When enabled, plots are embedded in the HTML output file and are also accessible
+    as properties on the result object for further customisation.
+    Use <code>plot_options</code> for global size/title overrides at call time,
+    or the <a href="#helper-functions">helper functions</a> for per-plot customisation after the call.
+  </p>
+
+  <div class="plot-card" id="plot-forest">
+    <h4>forest_plot — Forest Plot of Odds Ratios</h4>
+    <p>Enable with <code>forest_plot=True</code>. Access via <code>result.forest_plot</code>.</p>
+    <p>
+      Displays each non-intercept parameter as a point (the odds ratio) with horizontal error bars
+      (Wald CI). A vertical reference line is drawn at OR = 1.0. Points to the right of 1 indicate
+      increased odds of the event; points to the left indicate decreased odds.
+      Markers and CI lines are steel-blue by default.
+    </p>
+    <p>Default dimensions: 800 × 500 px.</p>
+  </div>
+
+  <div class="plot-card" id="plot-roc">
+    <h4>roc_plot — ROC Curve</h4>
+    <p>Enable with <code>roc_plot=True</code>. Access via <code>result.roc_plot</code>.</p>
+    <p>
+      Plots sensitivity (true positive rate) against 1-specificity (false positive rate)
+      across 200 threshold values from 0 to 1. The AUC (area under the curve) is displayed
+      in the legend. A diagonal dashed reference line (random classifier) is included.
+      AUC closer to 1 indicates better discrimination.
+    </p>
+    <p>Default dimensions: 700 × 600 px.</p>
+  </div>
+
+  <div class="plot-card" id="plot-influence">
+    <h4>influence — Influence Diagnostic Plots (two panels)</h4>
+    <p>Enable with <code>influence=True</code>. Access via <code>result.influence_plot</code> → returns <code>(panel1, panel2)</code>.</p>
+    <p>Two 2×2 subplot panels, each diagnostic plotted against case (observation) number:</p>
+    <ul>
+      <li><strong>Panel 1:</strong> Pearson Residual, Deviance Residual, Leverage, CI Displacement C</li>
+      <li><strong>Panel 2:</strong> CI Displacement Cbar, Chi-Square Deletion Difference, Deviance Deletion Difference</li>
+    </ul>
+    <p>Points with notably large values on any diagnostic may indicate influential observations
+    that have an outsized effect on the model estimates.</p>
+    <p>Default dimensions: 1000 × 700 px per panel.</p>
+  </div>
+
+  <div class="plot-card" id="plot-effect">
+    <h4>effect_plot — Predicted Probability Curve</h4>
+    <p>Enable with <code>effect_plot=True</code>. Access via <code>result.effect_plot</code>.</p>
+    <p>
+      Plots the model's predicted probability of the event against the first continuous predictor
+      (the predictor with the most unique values). If a categorical predictor is present,
+      separate lines are drawn for each of its levels. All other continuous predictors
+      are fixed at their mean; other categorical predictors at their mode.
+      A subtitle shows the fixed values used.
+    </p>
+    <p>Default dimensions: 900 × 550 px.</p>
+  </div>
+
+  <h3 class="sub-head" id="plot-options">plot_options dict</h3>
+  <p>
+    Passed at call time, applies to <em>all</em> plots generated in that call:
+  </p>
+<pre>result = <span class="cl">C2Logistic</span>(
+    data         = df,
+    outcome      = <span class="st">'y'</span>,
+    predictors   = [<span class="st">'age'</span>, <span class="st">'job_C'</span>],
+    forest_plot  = <span class="nm">True</span>,
+    roc_plot     = <span class="nm">True</span>,
+    plot_options = {
+        <span class="st">'width'</span>  : <span class="nb">1000</span>,
+        <span class="st">'height'</span> : <span class="nb">600</span>,
+        <span class="st">'title'</span>  : <span class="st">'Model 1 — Bank Marketing'</span>
+    }
+)</pre>
+  <p>For per-plot control use the helper functions after the call.</p>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────────
+     HELPER FUNCTIONS
+     ────────────────────────────────────────────────────────────────────── -->
+<section class="doc-section" id="helper-functions">
+  <h2 class="sec-head">Plot Helper Functions</h2>
+  <p>
+    Four standalone functions allow post-hoc customisation of plot figures returned by
+    the result object. Each accepts a Plotly figure from the corresponding result property,
+    applies the requested changes, and returns a new figure. The original result object
+    is not modified.
+  </p>
+
+  <!-- C2ForestPlot -->
+  <h3 class="sub-head" id="helper-forest">C2ForestPlot</h3>
+  <div class="sig-block">
+    <span class="sig-class">C2ForestPlot</span>(<span class="sig-param">plot</span>,
+    <span class="sig-param">title</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">width</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">height</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">color</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">marker_size</span>=<span class="sig-default">None</span>)
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">plot</span>
+    <span class="param-type">Plotly Figure</span>
+    <span class="param-required">required</span>
+    <div class="param-desc"><p>Pass <code>result.forest_plot</code> directly.</p></div>
+  </div>
+  <div class="param-entry">
+    <span class="param-name">title</span>
+    <span class="param-type">str</span>
+    <span class="param-default">None</span>
+    <div class="param-desc"><p>Override the plot title.</p></div>
+  </div>
+  <div class="param-entry">
+    <span class="param-name">width</span>
+    <span class="param-type">int</span>
+    <span class="param-default">None</span>
+    <div class="param-desc"><p>Figure width in pixels.</p></div>
+  </div>
+  <div class="param-entry">
+    <span class="param-name">height</span>
+    <span class="param-type">int</span>
+    <span class="param-default">None</span>
+    <div class="param-desc"><p>Figure height in pixels.</p></div>
+  </div>
+  <div class="param-entry">
+    <span class="param-name">color</span>
+    <span class="param-type">str</span>
+    <span class="param-default">None</span>
+    <div class="param-desc"><p>Colour for markers and CI error bars. Any valid CSS/Plotly colour string, e.g. <code>'darkblue'</code>, <code>'#c0392b'</code>.</p></div>
+  </div>
+  <div class="param-entry">
+    <span class="param-name">marker_size</span>
+    <span class="param-type">int</span>
+    <span class="param-default">None</span>
+    <div class="param-desc"><p>Size of the OR point markers in pixels.</p></div>
+  </div>
+<pre>fig = <span class="cl">C2ForestPlot</span>(result.forest_plot,
+    title       = <span class="st">'Odds Ratios — Model 1'</span>,
+    width       = <span class="nb">1000</span>,
+    color       = <span class="st">'darkblue'</span>,
+    marker_size = <span class="nb">12</span>
+)
+fig.show()
+fig.write_html(<span class="st">'forest.html'</span>)</pre>
+
+  <!-- C2RocPlot -->
+  <h3 class="sub-head" id="helper-roc">C2RocPlot</h3>
+  <div class="sig-block">
+    <span class="sig-class">C2RocPlot</span>(<span class="sig-param">plot</span>,
+    <span class="sig-param">title</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">width</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">height</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">color</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">line_width</span>=<span class="sig-default">None</span>)
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">plot</span><span class="param-type">Plotly Figure</span><span class="param-required">required</span>
+    <div class="param-desc"><p>Pass <code>result.roc_plot</code>.</p></div>
+  </div>
+  <div class="param-entry">
+    <span class="param-name">color</span><span class="param-type">str</span><span class="param-default">None</span>
+    <div class="param-desc"><p>Colour of the ROC line (reference diagonal is not affected).</p></div>
+  </div>
+  <div class="param-entry">
+    <span class="param-name">line_width</span><span class="param-type">int</span><span class="param-default">None</span>
+    <div class="param-desc"><p>Width of the ROC line in pixels.</p></div>
+  </div>
+<pre>fig = <span class="cl">C2RocPlot</span>(result.roc_plot, color=<span class="st">'red'</span>, width=<span class="nb">700</span>, line_width=<span class="nb">3</span>)
+fig.show()</pre>
+
+  <!-- C2InfluencePlot -->
+  <h3 class="sub-head" id="helper-influence">C2InfluencePlot</h3>
+  <div class="sig-block">
+    <span class="sig-class">C2InfluencePlot</span>(<span class="sig-param">plot</span>,
+    <span class="sig-param">title</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">width</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">height</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">color</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">marker_size</span>=<span class="sig-default">None</span>)
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">plot</span><span class="param-type">Plotly Figure or tuple</span><span class="param-required">required</span>
+    <div class="param-desc">
+      <p>Pass either <code>result.influence_plot</code> (the full tuple) or a single panel from it.
+      When a tuple is passed, both panels are updated and the function returns a tuple of two figures.
+      When a single figure is passed, one figure is returned.</p>
+    </div>
+  </div>
+  <div class="param-entry">
+    <span class="param-name">color</span><span class="param-type">str</span><span class="param-default">None</span>
+    <div class="param-desc"><p>Colour of all scatter markers across all subplots.</p></div>
+  </div>
+  <div class="param-entry">
+    <span class="param-name">marker_size</span><span class="param-type">int</span><span class="param-default">None</span>
+    <div class="param-desc"><p>Marker size across all subplots.</p></div>
+  </div>
+<pre><span class="cm"># Customise both panels together</span>
+panels = <span class="cl">C2InfluencePlot</span>(result.influence_plot, width=<span class="nb">1100</span>, height=<span class="nb">800</span>)
+panels[<span class="nb">0</span>].show()   <span class="cm"># Panel 1</span>
+panels[<span class="nb">1</span>].show()   <span class="cm"># Panel 2</span></pre>
+
+  <!-- C2EffectPlot -->
+  <h3 class="sub-head" id="helper-effect">C2EffectPlot</h3>
+  <div class="sig-block">
+    <span class="sig-class">C2EffectPlot</span>(<span class="sig-param">plot</span>,
+    <span class="sig-param">title</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">width</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">height</span>=<span class="sig-default">None</span>,
+    <span class="sig-param">line_width</span>=<span class="sig-default">None</span>)
+  </div>
+
+  <div class="param-entry">
+    <span class="param-name">plot</span><span class="param-type">Plotly Figure</span><span class="param-required">required</span>
+    <div class="param-desc"><p>Pass <code>result.effect_plot</code>.</p></div>
+  </div>
+  <div class="param-entry">
+    <span class="param-name">line_width</span><span class="param-type">int</span><span class="param-default">None</span>
+    <div class="param-desc"><p>Width of all probability curve lines in pixels.</p></div>
+  </div>
+<pre>fig = <span class="cl">C2EffectPlot</span>(result.effect_plot,
+    title      = <span class="st">'Predicted Probabilities — Model 1'</span>,
+    width      = <span class="nb">950</span>,
+    line_width = <span class="nb">3</span>
+)
+fig.show()</pre>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────────
+     OUTPUT & EXPORT
+     ────────────────────────────────────────────────────────────────────── -->
+<section class="doc-section" id="output-export">
+  <h2 class="sec-head">Output &amp; Export</h2>
+
+  <h3 class="sub-head" id="output-html">HTML output</h3>
+  <p>
+    The default <code>output='html'</code> saves a self-contained HTML report styled to resemble
+    SAS PROC LOGISTIC output (monospace font, tabular layout). The report contains all result tables
+    (model info, observations, response profile, classification variable details, fit statistics,
+    global tests, Type III tests, association statistics, parameter estimates, odds ratios)
+    plus any enabled plots embedded inline as interactive Plotly charts.
+    Plotly JS is loaded from CDN only when plots are present.
+  </p>
+
+  <h3 class="sub-head" id="output-csv">CSV / Excel</h3>
+  <p>
+    <code>output='csv'</code> and <code>output='excel'</code> save the <code>.dataset</code>
+    DataFrame directly to a flat file. These formats contain only the per-parameter numeric results —
+    no formatted tables, no plots. Useful for downstream analysis in other tools.
+  </p>
+
+  <h3 class="sub-head" id="output-dataset">.dataset property</h3>
+  <p>
+    Available on any result object regardless of <code>output</code> setting.
+    Returns a pandas DataFrame with one row per parameter per BY-group. Column reference:
+  </p>
+  <table class="doc-table">
+    <tr><th>Column</th><th>Description</th></tr>
+    <tr><td><code>label</code></td><td>BY-group identifier (empty string if no BY variable)</td></tr>
+    <tr><td><code>parameter</code></td><td>Parameter name (cleaned from patsy C() notation)</td></tr>
+    <tr><td><code>log_or</code></td><td>Log odds ratio (parameter estimate)</td></tr>
+    <tr><td><code>se</code></td><td>Standard error of the log odds ratio</td></tr>
+    <tr><td><code>wald_chisq</code></td><td>Wald chi-square statistic = (log_or / se)²</td></tr>
+    <tr><td><code>p_value</code></td><td>Two-sided p-value from chi-square(1) distribution</td></tr>
+    <tr><td><code>log_or_lower_95</code> / <code>log_or_upper_95</code></td><td>CI bounds on log scale (suffix reflects ci= setting)</td></tr>
+    <tr><td><code>odds_ratio</code></td><td>exp(log_or)</td></tr>
+    <tr><td><code>or_lower_95</code> / <code>or_upper_95</code></td><td>CI bounds on odds ratio scale</td></tr>
+    <tr><td><code>n_obs</code></td><td>Number of observations used in this fit</td></tr>
+    <tr><td><code>converged</code></td><td>Boolean — did Fisher scoring converge?</td></tr>
+    <tr><td><code>iterations</code></td><td>Number of iterations taken</td></tr>
+    <tr><td><code>separation</code></td><td><code>'none'</code>, <code>'quasi'</code>, or <code>'complete'</code></td></tr>
+    <tr><td><code>warning_issued</code></td><td>Boolean — was a separation warning raised?</td></tr>
+  </table>
+<pre>df_results = result.dataset
+df_results.to_csv(<span class="st">'my_results.csv'</span>, index=<span class="nm">False</span>)
+
+<span class="cm"># Filter to significant parameters only</span>
+sig = df_results[df_results[<span class="st">'p_value'</span>] &lt; <span class="nb">0.05</span>]</pre>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────────
+     EXAMPLES
+     ────────────────────────────────────────────────────────────────────── -->
+<section class="doc-section" id="examples">
+  <h2 class="sec-head">Examples</h2>
+
+  <h3 class="sub-head" id="ex-minimal">Minimal call</h3>
+  <p>Only the three required arguments. All options at their defaults:
+  <code>ref='LAST'</code>, <code>output='html'</code>, no plots, no extra statistics.</p>
+<pre>result = <span class="cl">C2Logistic</span>(
+    data       = df,
+    outcome    = <span class="st">'y'</span>,
+    predictors = [<span class="st">'age'</span>, <span class="st">'job_C'</span>, <span class="st">'balance'</span>]
+)</pre>
+
+  <h3 class="sub-head" id="ex-full">Full call — all options</h3>
+<pre>result = <span class="cl">C2Logistic</span>(
+    data         = df,
+    outcome      = <span class="st">'purchased'</span>,
+    event        = <span class="st">'yes'</span>,
+    predictors   = [<span class="st">'age'</span>, <span class="st">'job_C'</span>, <span class="st">'balance'</span>, <span class="st">'marital_C'</span>],
+    ref          = <span class="st">'LAST'</span>,
+    by           = <span class="nm">None</span>,
+    maxiter      = <span class="nb">25</span>,
+    ci           = <span class="nb">0.95</span>,
+    rsquare      = <span class="nm">True</span>,
+    lackfit      = <span class="nm">True</span>,
+    decimals     = <span class="nb">4</span>,
+    output       = <span class="st">'html'</span>,
+    filepath     = <span class="st">'results/model1.html'</span>,
+    forest_plot  = <span class="nm">True</span>,
+    roc_plot     = <span class="nm">True</span>,
+    influence    = <span class="nm">True</span>,
+    effect_plot  = <span class="nm">True</span>,
+    plot_options = {<span class="st">'width'</span>: <span class="nb">900</span>, <span class="st">'height'</span>: <span class="nb">500</span>}
+)</pre>
+
+  <h3 class="sub-head" id="ex-by">BY processing — one model per group</h3>
+<pre>result = <span class="cl">C2Logistic</span>(
+    data       = df,
+    outcome    = <span class="st">'y'</span>,
+    predictors = [<span class="st">'age'</span>, <span class="st">'balance'</span>],
+    by         = <span class="st">'education'</span>,    <span class="cm"># fits separately for each education level</span>
+    output     = <span class="st">'html'</span>,
+    filepath   = <span class="st">'by_education.html'</span>
+)
+
+<span class="cm"># .dataset contains all groups; use 'label' column to filter</span>
+df_primary = result.dataset[result.dataset[<span class="st">'label'</span>] == <span class="st">'education = primary'</span>]</pre>
+
+  <h3 class="sub-head" id="ex-ref-dict">Per-variable reference levels with dict ref</h3>
+<pre>result = <span class="cl">C2Logistic</span>(
+    data       = df,
+    outcome    = <span class="st">'y'</span>,
+    predictors = [<span class="st">'age'</span>, <span class="st">'job_C'</span>, <span class="st">'marital_C'</span>, <span class="st">'housing_C'</span>],
+    ref        = {
+        <span class="st">'job_C'</span>     : <span class="st">'management'</span>,  <span class="cm"># management is reference for job</span>
+        <span class="st">'marital_C'</span> : <span class="st">'married'</span>,      <span class="cm"># married is reference for marital</span>
+        <span class="st">'housing_C'</span> : <span class="st">'yes'</span>           <span class="cm"># yes is reference for housing</span>
+        <span class="cm"># age is numeric — not affected by ref</span>
+    }
+)</pre>
+
+  <h3 class="sub-head" id="ex-plots">Accessing and customising plots</h3>
+<pre>result = <span class="cl">C2Logistic</span>(
+    data        = df,
+    outcome     = <span class="st">'y'</span>,
+    predictors  = [<span class="st">'age'</span>, <span class="st">'job_C'</span>, <span class="st">'balance'</span>],
+    forest_plot = <span class="nm">True</span>,
+    roc_plot    = <span class="nm">True</span>,
+    influence   = <span class="nm">True</span>,
+    effect_plot = <span class="nm">True</span>
+)
+
+<span class="cm"># Access raw figures</span>
+fig_forest = result.forest_plot
+fig_roc    = result.roc_plot
+p1, p2     = result.influence_plot
+fig_effect = result.effect_plot
+
+<span class="cm"># Customise using helpers</span>
+fig_forest = <span class="cl">C2ForestPlot</span>(result.forest_plot,
+    title=<span class="st">'OR with 95% Wald CI'</span>, width=<span class="nb">1000</span>, color=<span class="st">'navy'</span>)
+
+fig_roc = <span class="cl">C2RocPlot</span>(result.roc_plot,
+    color=<span class="st">'crimson'</span>, line_width=<span class="nb">3</span>)
+
+panels = <span class="cl">C2InfluencePlot</span>(result.influence_plot,
+    width=<span class="nb">1100</span>, height=<span class="nb">800</span>, color=<span class="st">'steelblue'</span>)
+
+fig_effect = <span class="cl">C2EffectPlot</span>(result.effect_plot,
+    title=<span class="st">'Predicted Prob of Purchase'</span>, line_width=<span class="nb">2</span>)
+
+<span class="cm"># Display / save</span>
+fig_forest.show()
+fig_forest.write_html(<span class="st">'forest.html'</span>)
+panels[<span class="nb">0</span>].write_html(<span class="st">'influence_panel1.html'</span>)</pre>
+
+  <h3 class="sub-head" id="ex-dataset">Working with .dataset</h3>
+<pre>result = <span class="cl">C2Logistic</span>(
+    data       = df,
+    outcome    = <span class="st">'y'</span>,
+    predictors = [<span class="st">'age'</span>, <span class="st">'job_C'</span>, <span class="st">'balance'</span>],
+    ci         = <span class="nb">0.95</span>
+)
+
+df_out = result.dataset
+
+<span class="cm"># All parameters</span>
+print(df_out[[<span class="st">'parameter'</span>, <span class="st">'odds_ratio'</span>, <span class="st">'or_lower_95'</span>, <span class="st">'or_upper_95'</span>, <span class="st">'p_value'</span>]])
+
+<span class="cm"># Significant only (p &lt; 0.05)</span>
+sig = df_out[df_out[<span class="st">'p_value'</span>] &lt; <span class="nb">0.05</span>]
+
+<span class="cm"># Save to Excel for reporting</span>
+df_out.to_excel(<span class="st">'model_results.xlsx'</span>, index=<span class="nm">False</span>)</pre>
+
+  <h3 class="sub-head" id="ex-effect">Effect coding variant — C2LogisticE</h3>
+<pre><span class="kw">from</span> C2ProcLogistic <span class="kw">import</span> C2Logistic, C2LogisticE
+
+<span class="cm"># Reference coding (PARAM=REF) — coefficients vs reference level</span>
+res_ref = <span class="cl">C2Logistic</span>(
+    data=df, outcome=<span class="st">'y'</span>, predictors=[<span class="st">'age'</span>, <span class="st">'job_C'</span>], ref=<span class="st">'LAST'</span>
+)
+
+<span class="cm"># Effect coding (PARAM=EFFECT) — coefficients vs grand mean</span>
+res_eff = <span class="cl">C2LogisticE</span>(
+    data=df, outcome=<span class="st">'y'</span>, predictors=[<span class="st">'age'</span>, <span class="st">'job_C'</span>], ref=<span class="st">'LAST'</span>
+)
+
+<span class="cm"># Compare estimates</span>
+print(res_ref.dataset[[<span class="st">'parameter'</span>, <span class="st">'log_or'</span>, <span class="st">'odds_ratio'</span>]])
+print(res_eff.dataset[[<span class="st">'parameter'</span>, <span class="st">'log_or'</span>, <span class="st">'odds_ratio'</span>]])</pre>
+
+</section>
+
+</main><!-- /main -->
+</div><!-- /layout -->
+
+<div id="footer">
+  C2ProcLogistic documentation &nbsp;·&nbsp; Generated from source &nbsp;·&nbsp;
+  Fisher scoring · patsy formula API · Plotly visualisations
+</div>
+
+<script>
+function toggleNav(header) {
+  header.classList.toggle('open');
+  const links = header.nextElementSibling;
+  links.classList.toggle('open');
+}
+
+// Highlight active nav link on scroll
+const allLinks = document.querySelectorAll('.nav-links a');
+const allSections = document.querySelectorAll('[id]');
+
+function onScroll() {
+  let current = '';
+  allSections.forEach(sec => {
+    const top = sec.getBoundingClientRect().top;
+    if (top <= 80) current = sec.id;
+  });
+  allLinks.forEach(a => {
+    a.classList.remove('active');
+    const href = a.getAttribute('href');
+    if (href && href === '#' + current) {
+      a.classList.add('active');
+      // open parent group if closed
+      const group = a.closest('.nav-links');
+      if (group && !group.classList.contains('open')) {
+        group.classList.add('open');
+        group.previousElementSibling.classList.add('open');
+      }
+    }
+  });
+}
+
+window.addEventListener('scroll', onScroll, { passive: true });
+onScroll();
+</script>
+</body>
+</html>
